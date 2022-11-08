@@ -12,3 +12,12 @@ api:
 entity:
 # bin/console api:json-schema:generate
 	bin/console make:entity --api-resource
+
+migration:
+	bin/console doctrine:migrations:diff
+
+migrate:
+	bin/console doctrine:migrations:migrate
+
+migration-migrate: migration migrate
+	echo "doing migrations"
