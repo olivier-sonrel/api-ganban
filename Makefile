@@ -1,5 +1,6 @@
-run-server:
+run:
 # symfony serve -d
+	sudo service mysql start
 	php -S 127.0.0.1:8000 -t public
 
 clear-cache:
@@ -20,4 +21,16 @@ migrate:
 	bin/console doctrine:migrations:migrate
 
 migration-migrate: migration migrate
-	echo "doing migrations"
+	echo "doing migrations" 
+
+clean-migration:
+	rm -rf ./migrations/*
+
+drop-bdd:
+	bin/console doctrine:database:drop --force
+
+create-bdd:
+	bin/console doctrine:database:create
+
+reload-bdd: clean-migration drop-bdd create-bdd migration migrate
+	echo "reload bdd and migrations"
