@@ -4,6 +4,8 @@ namespace App\Entity;
 
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,6 +14,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
 use App\State\UserProcessor;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -22,6 +29,11 @@ use App\State\UserProcessor;
             name: 'user',
             processor: UserProcessor::class
         ),
+        new GetCollection(),
+        new Get(),
+        new Put(),
+        new Delete(),
+        new Patch()
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:write']],
@@ -66,6 +78,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         match: true,
     )]
     private ?string $plainPassword = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToProject::class, orphanRemoval: true)]
+    private Collection $projects;
+
+    public function __construct()
+    {
+        $this->projects = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -157,6 +177,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): self
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserToProject>
+     */
+    public function getProjects(): Collection
+    {
+        return $this->projects;
+    }
+
+    public function addProject(UserToProject $project): self
+    {
+        if (!$this->projects->contains($project)) {
+            $this->projects->add($project);
+            $project->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProject(UserToProject $project): self
+    {
+        if ($this->projects->removeElement($project)) {
+            // set the owning side to null (unless already changed)
+            if ($project->getUser() === $this) {
+                $project->setUser(null);
+            }
+        }
 
         return $this;
     }
