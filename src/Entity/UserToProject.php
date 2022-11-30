@@ -18,11 +18,11 @@ class UserToProject
     #[ORM\ManyToOne(inversedBy: 'userToProject')]
     private ?Role $role = null;
 
-    #[ORM\ManyToOne(inversedBy: 'projects')]
+    #[ORM\ManyToOne(inversedBy: 'projectsRoles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Users')]
+    #[ORM\ManyToOne(inversedBy: 'usersRoles')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Project $project = null;
 

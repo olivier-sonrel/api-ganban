@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20221124111525 extends AbstractMigration
+final class Version20221130102216 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -26,13 +26,17 @@ final class Version20221124111525 extends AbstractMigration
         $this->addSql('CREATE TABLE role (id INT AUTO_INCREMENT NOT NULL, name VARCHAR(100) NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE sprint (id INT AUTO_INCREMENT NOT NULL, project_id INT DEFAULT NULL, name VARCHAR(255) NOT NULL, INDEX IDX_EF8055B7166D1F9C (project_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE user (id INT AUTO_INCREMENT NOT NULL, email VARCHAR(180) NOT NULL, username VARCHAR(180) NOT NULL, roles LONGTEXT NOT NULL COMMENT \'(DC2Type:json)\', password VARCHAR(255) NOT NULL, UNIQUE INDEX UNIQ_8D93D649E7927C74 (email), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE user_to_project (id INT AUTO_INCREMENT NOT NULL, role_id INT DEFAULT NULL, INDEX IDX_64C2BF7D60322AC (role_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE user_to_sprint (id INT AUTO_INCREMENT NOT NULL, role_id INT DEFAULT NULL, INDEX IDX_C9B2D4CED60322AC (role_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE user_to_project (id INT AUTO_INCREMENT NOT NULL, role_id INT DEFAULT NULL, user_id INT NOT NULL, project_id INT NOT NULL, INDEX IDX_64C2BF7D60322AC (role_id), INDEX IDX_64C2BF7A76ED395 (user_id), INDEX IDX_64C2BF7166D1F9C (project_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE user_to_sprint (id INT AUTO_INCREMENT NOT NULL, role_id INT DEFAULT NULL, user_id INT NOT NULL, sprint_id INT NOT NULL, INDEX IDX_C9B2D4CED60322AC (role_id), INDEX IDX_C9B2D4CEA76ED395 (user_id), INDEX IDX_C9B2D4CE8C24077B (sprint_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('ALTER TABLE card ADD CONSTRAINT FK_161498D3DD842E46 FOREIGN KEY (position_id) REFERENCES `column` (id)');
         $this->addSql('ALTER TABLE `column` ADD CONSTRAINT FK_7D53877E8C24077B FOREIGN KEY (sprint_id) REFERENCES sprint (id)');
         $this->addSql('ALTER TABLE sprint ADD CONSTRAINT FK_EF8055B7166D1F9C FOREIGN KEY (project_id) REFERENCES project (id)');
         $this->addSql('ALTER TABLE user_to_project ADD CONSTRAINT FK_64C2BF7D60322AC FOREIGN KEY (role_id) REFERENCES role (id)');
+        $this->addSql('ALTER TABLE user_to_project ADD CONSTRAINT FK_64C2BF7A76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE user_to_project ADD CONSTRAINT FK_64C2BF7166D1F9C FOREIGN KEY (project_id) REFERENCES project (id)');
         $this->addSql('ALTER TABLE user_to_sprint ADD CONSTRAINT FK_C9B2D4CED60322AC FOREIGN KEY (role_id) REFERENCES role (id)');
+        $this->addSql('ALTER TABLE user_to_sprint ADD CONSTRAINT FK_C9B2D4CEA76ED395 FOREIGN KEY (user_id) REFERENCES user (id)');
+        $this->addSql('ALTER TABLE user_to_sprint ADD CONSTRAINT FK_C9B2D4CE8C24077B FOREIGN KEY (sprint_id) REFERENCES sprint (id)');
     }
 
     public function down(Schema $schema): void
@@ -42,7 +46,11 @@ final class Version20221124111525 extends AbstractMigration
         $this->addSql('ALTER TABLE `column` DROP FOREIGN KEY FK_7D53877E8C24077B');
         $this->addSql('ALTER TABLE sprint DROP FOREIGN KEY FK_EF8055B7166D1F9C');
         $this->addSql('ALTER TABLE user_to_project DROP FOREIGN KEY FK_64C2BF7D60322AC');
+        $this->addSql('ALTER TABLE user_to_project DROP FOREIGN KEY FK_64C2BF7A76ED395');
+        $this->addSql('ALTER TABLE user_to_project DROP FOREIGN KEY FK_64C2BF7166D1F9C');
         $this->addSql('ALTER TABLE user_to_sprint DROP FOREIGN KEY FK_C9B2D4CED60322AC');
+        $this->addSql('ALTER TABLE user_to_sprint DROP FOREIGN KEY FK_C9B2D4CEA76ED395');
+        $this->addSql('ALTER TABLE user_to_sprint DROP FOREIGN KEY FK_C9B2D4CE8C24077B');
         $this->addSql('DROP TABLE card');
         $this->addSql('DROP TABLE `column`');
         $this->addSql('DROP TABLE project');

@@ -26,9 +26,14 @@ class Sprint
     #[ORM\OneToMany(mappedBy: 'sprint', targetEntity: Column::class)]
     private Collection $columns;
 
+    #[ORM\OneToMany(mappedBy: 'sprint', targetEntity: UserToSprint::class, orphanRemoval: true)]
+    private Collection $usersRoles;
+
     public function __construct()
     {
         $this->columns = new ArrayCollection();
+        $this->users = new ArrayCollection();
+        $this->usersRoles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -84,6 +89,44 @@ class Sprint
             // set the owning side to null (unless already changed)
             if ($column->getSprint() === $this) {
                 $column->setSprint(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserToSprint>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    /**
+     * @return Collection<int, UserToSprint>
+     */
+    public function getUsersRoles(): Collection
+    {
+        return $this->usersRoles;
+    }
+
+    public function addUsersRole(UserToSprint $usersRole): self
+    {
+        if (!$this->usersRoles->contains($usersRole)) {
+            $this->usersRoles->add($usersRole);
+            $usersRole->setSprint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersRole(UserToSprint $usersRole): self
+    {
+        if ($this->usersRoles->removeElement($usersRole)) {
+            // set the owning side to null (unless already changed)
+            if ($usersRole->getSprint() === $this) {
+                $usersRole->setSprint(null);
             }
         }
 

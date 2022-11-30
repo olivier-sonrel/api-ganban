@@ -79,12 +79,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     )]
     private ?string $plainPassword = null;
 
+    #[Groups(['user:read', 'user:write'])]
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToProject::class, orphanRemoval: true)]
-    private Collection $projects;
+    private Collection $projectsRoles;
+
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToSprint::class, orphanRemoval: true)]
+    private Collection $sprintsRoles;
 
     public function __construct()
     {
-        $this->projects = new ArrayCollection();
+        $this->projectsRoles = new ArrayCollection();
+        $this->sprintsRoles = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -184,27 +190,57 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, UserToProject>
      */
-    public function getProjects(): Collection
+    public function getProjectsRoles(): Collection
     {
-        return $this->projects;
+        return $this->projectsRoles;
     }
 
-    public function addProject(UserToProject $project): self
+    public function addProjectsRole(UserToProject $projectsRole): self
     {
-        if (!$this->projects->contains($project)) {
-            $this->projects->add($project);
-            $project->setUser($this);
+        if (!$this->projectsRoles->contains($projectsRole)) {
+            $this->projectsRoles->add($projectsRole);
+            $projectsRole->setUser($this);
         }
 
         return $this;
     }
 
-    public function removeProject(UserToProject $project): self
+    public function removeProjectsRole(UserToProject $projectsRole): self
     {
-        if ($this->projects->removeElement($project)) {
+        if ($this->projectsRoles->removeElement($projectsRole)) {
             // set the owning side to null (unless already changed)
-            if ($project->getUser() === $this) {
-                $project->setUser(null);
+            if ($projectsRole->getUser() === $this) {
+                $projectsRole->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserToSprint>
+     */
+    public function getSprintsRoles(): Collection
+    {
+        return $this->sprintsRoles;
+    }
+
+    public function addSprintsRole(UserToSprint $sprintsRole): self
+    {
+        if (!$this->sprintsRoles->contains($sprintsRole)) {
+            $this->sprintsRoles->add($sprintsRole);
+            $sprintsRole->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSprintsRole(UserToSprint $sprintsRole): self
+    {
+        if ($this->sprintsRoles->removeElement($sprintsRole)) {
+            // set the owning side to null (unless already changed)
+            if ($sprintsRole->getUser() === $this) {
+                $sprintsRole->setUser(null);
             }
         }
 

@@ -39,12 +39,13 @@ class Project
     private Collection $sprints;
 
     #[ORM\OneToMany(mappedBy: 'project', targetEntity: UserToProject::class, orphanRemoval: true)]
-    private Collection $Users;
+    private Collection $usersRoles;
 
     public function __construct()
     {
+        $this->sprintsRoles = new ArrayCollection();
+        $this->usersRoles = new ArrayCollection();
         $this->sprints = new ArrayCollection();
-        $this->Users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -109,27 +110,27 @@ class Project
     /**
      * @return Collection<int, UserToProject>
      */
-    public function getUsers(): Collection
+    public function getUsersRoles(): Collection
     {
-        return $this->Users;
+        return $this->usersRoles;
     }
 
-    public function addUser(UserToProject $user): self
+    public function addUsersRole(UserToProject $usersRole): self
     {
-        if (!$this->Users->contains($user)) {
-            $this->Users->add($user);
-            $user->setProject($this);
+        if (!$this->usersRoles->contains($usersRole)) {
+            $this->usersRoles->add($usersRole);
+            $usersRole->setProject($this);
         }
 
         return $this;
     }
 
-    public function removeUser(UserToProject $user): self
+    public function removeUsersRole(UserToProject $usersRole): self
     {
-        if ($this->Users->removeElement($user)) {
+        if ($this->usersRoles->removeElement($usersRole)) {
             // set the owning side to null (unless already changed)
-            if ($user->getProject() === $this) {
-                $user->setProject(null);
+            if ($usersRole->getProject() === $this) {
+                $usersRole->setProject(null);
             }
         }
 
