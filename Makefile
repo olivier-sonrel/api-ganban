@@ -34,3 +34,10 @@ create-bdd:
 
 reload-bdd: clean-migration drop-bdd create-bdd migration migrate
 	echo "reload bdd and migrations"
+
+######### PHP STAN #########
+stan:
+	@echo ----------------- Run phpStan ------------------
+	php ./vendor/bin/phpstan analyse -c phpstan.neon --no-progress
+
+test: stan

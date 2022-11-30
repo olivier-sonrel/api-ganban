@@ -1,0 +1,24 @@
+parameters:
+    #max level 9
+    level: 6
+    paths:
+        - src
+        #- tests
+    excludePaths:
+        #- tests/console-application.php
+        #- tests/bootstrap.php
+        #- tests/object-manager.php
+        - src/Entity/*
+    ignoreErrors:
+        - '#Attribute class JetBrains\\PhpStorm\\ArrayShape does not exist.#'
+        -
+            message: '#has no return type specified.#' #'#Call to an undefined method [a-zA-Z0-9\\_]+::doBar\(\)#'
+            paths:
+                - src/Form/*
+    #symfony:
+        #consoleApplicationLoader: tests/console-application.php
+        #container_xml_path: var/cache/dev/App_KernelDevDebugContainer.xml
+    #doctrine:
+        #objectManagerLoader: tests/object-manager.php
+
+    checkGenericClassInNonGenericObjectType: false
