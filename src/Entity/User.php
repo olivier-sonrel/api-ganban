@@ -4,6 +4,8 @@ namespace App\Entity;
 
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -12,6 +14,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Serializer\Annotation\SerializedName;
 use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Put;
+use ApiPlatform\Metadata\Delete;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Get;
 use App\State\UserProcessor;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
@@ -22,6 +29,11 @@ use App\State\UserProcessor;
             name: 'user',
             processor: UserProcessor::class
         ),
+        new GetCollection(),
+        new Get(),
+        new Put(),
+        new Delete(),
+        new Patch()
     ],
     normalizationContext: ['groups' => ['user:read']],
     denormalizationContext: ['groups' => ['user:write']],
@@ -66,6 +78,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         match: true,
     )]
     private ?string $plainPassword = null;
+
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToProject::class, orphanRemoval: true)]
+    private Collection $projectsRoles;
+
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToSprint::class, orphanRemoval: true)]
+    private Collection $sprintsRoles;
+
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\ManyToMany(targetEntity: Card::class, inversedBy: 'users')]
+    private Collection $cards;
+
+    public function __construct()
+    {
+        $this->projectsRoles = new ArrayCollection();
+        $this->sprintsRoles = new ArrayCollection();
+        $this->cards = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -146,7 +177,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials()
     {
         // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
     }
 
     public function getUsername(): ?string
@@ -157,6 +188,90 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): self
     {
         $this->username = $username;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserToProject>
+     */
+    public function getProjectsRoles(): Collection
+    {
+        return $this->projectsRoles;
+    }
+
+    public function addProjectsRole(UserToProject $projectsRole): self
+    {
+        if (!$this->projectsRoles->contains($projectsRole)) {
+            $this->projectsRoles->add($projectsRole);
+            $projectsRole->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProjectsRole(UserToProject $projectsRole): self
+    {
+        if ($this->projectsRoles->removeElement($projectsRole)) {
+            // set the owning side to null (unless already changed)
+            if ($projectsRole->getUser() === $this) {
+                $projectsRole->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, UserToSprint>
+     */
+    public function getSprintsRoles(): Collection
+    {
+        return $this->sprintsRoles;
+    }
+
+    public function addSprintsRole(UserToSprint $sprintsRole): self
+    {
+        if (!$this->sprintsRoles->contains($sprintsRole)) {
+            $this->sprintsRoles->add($sprintsRole);
+            $sprintsRole->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSprintsRole(UserToSprint $sprintsRole): self
+    {
+        if ($this->sprintsRoles->removeElement($sprintsRole)) {
+            // set the owning side to null (unless already changed)
+            if ($sprintsRole->getUser() === $this) {
+                $sprintsRole->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Card $card): self
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Card $card): self
+    {
+        $this->cards->removeElement($card);
 
         return $this;
     }

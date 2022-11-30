@@ -32,7 +32,7 @@ drop-bdd:
 create-bdd:
 	bin/console doctrine:database:create
 
-reload-bdd: clean-migration drop-bdd create-bdd migration migrate
+reload-bdd: clean-migration drop-bdd create-bdd migration migrate api
 	echo "reload bdd and migrations"
 
 ######### PHP STAN #########
