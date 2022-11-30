@@ -87,10 +87,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserToSprint::class, orphanRemoval: true)]
     private Collection $sprintsRoles;
 
+    #[Groups(['user:read', 'user:write'])]
+    #[ORM\ManyToMany(targetEntity: Card::class, inversedBy: 'users')]
+    private Collection $cards;
+
     public function __construct()
     {
         $this->projectsRoles = new ArrayCollection();
         $this->sprintsRoles = new ArrayCollection();
+        $this->cards = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -243,6 +248,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $sprintsRole->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Card>
+     */
+    public function getCards(): Collection
+    {
+        return $this->cards;
+    }
+
+    public function addCard(Card $card): self
+    {
+        if (!$this->cards->contains($card)) {
+            $this->cards->add($card);
+        }
+
+        return $this;
+    }
+
+    public function removeCard(Card $card): self
+    {
+        $this->cards->removeElement($card);
 
         return $this;
     }
