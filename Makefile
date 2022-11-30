@@ -6,6 +6,9 @@ run:
 clear-cache:
 	bin/console cache:clear
 
+generate-jwt-ssh:
+	bin/console lexik:jwt:generate-keypair
+
 api:
 # bin/console api:json-schema:generate
 	bin/console api:openapi:export
